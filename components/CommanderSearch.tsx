@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { scryfallAPI, ScryfallCard } from '@/utils/scryfall';
+import { scryfallAPI } from '@/utils/scryfall';
 import { useGameState } from '@/hooks/useGameState';
 
 interface CommanderSearchProps {
