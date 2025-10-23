@@ -14,6 +14,7 @@ export default function CommanderSearch({ playerId, isPartner = false }: Command
   const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const currentCommander = commanders[playerId]?.[isPartner ? 'partner' : 'main'];
 
@@ -26,6 +27,7 @@ export default function CommanderSearch({ playerId, isPartner = false }: Command
 
   const handleSearch = async (value: string) => {
     setQuery(value);
+    setError(null);
 
     if (value.length < 3) {
       setSuggestions([]);
@@ -33,29 +35,45 @@ export default function CommanderSearch({ playerId, isPartner = false }: Command
     }
 
     setLoading(true);
-    const result = await scryfallAPI.getAutocompleteSuggestions(value);
-    setSuggestions(result.data);
-    setLoading(false);
+    try {
+      const result = await scryfallAPI.getAutocompleteSuggestions(value);
+      setSuggestions(result.data);
+      if (result.data.length === 0 && value.length >= 3) {
+        setError('No commanders found. Try a different search.');
+      }
+    } catch {
+      setError('Failed to search. Check your internet connection.');
+      setSuggestions([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSelect = async (cardName: string) => {
     setLoading(true);
-    const card = await scryfallAPI.getCardByName(cardName);
-    
-    if (card) {
-      setCommander(
-        playerId,
-        {
-          name: card.name,
-          image: scryfallAPI.getArtCropURL(card),
-        },
-        isPartner
-      );
-      setQuery(card.name);
+    setError(null);
+    try {
+      const card = await scryfallAPI.getCardByName(cardName);
+      
+      if (card) {
+        setCommander(
+          playerId,
+          {
+            name: card.name,
+            image: scryfallAPI.getArtCropURL(card),
+          },
+          isPartner
+        );
+        setQuery(card.name);
+      } else {
+        setError('This card cannot be a commander.');
+      }
+    } catch {
+      setError('Failed to fetch card details. Please try again.');
+    } finally {
+      setSuggestions([]);
+      setLoading(false);
     }
-    
-    setSuggestions([]);
-    setLoading(false);
   };
 
   return (
@@ -76,6 +94,12 @@ export default function CommanderSearch({ playerId, isPartner = false }: Command
         {loading && (
           <div className="absolute right-2 top-2">
             <div className="w-5 h-5 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
+          </div>
+        )}
+        
+        {error && (
+          <div className="mt-1 text-xs text-red-400">
+            {error}
           </div>
         )}
         

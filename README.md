@@ -81,6 +81,46 @@ npm run build
 npm start
 ```
 
+The production build will be available at `http://localhost:3000` by default.
+
+#### Deployment Options
+
+**Option 1: Traditional Node.js Server (Recommended)**
+```bash
+# Build the application
+npm run build
+
+# Start the server
+npm start
+```
+This creates an optimized production build that runs on a Node.js server. The `public` directory with background images will be served automatically.
+
+**Option 2: Static Export**
+For static hosting (Netlify, Vercel, GitHub Pages), you can export the app as static HTML:
+
+1. Update `next.config.ts` to add `output: 'export'`:
+```typescript
+const nextConfig: NextConfig = {
+  output: 'export', // Enable static HTML export
+  images: {
+    unoptimized: true, // Required for static export
+    // ... rest of config
+  },
+};
+```
+
+2. Build the static site:
+```bash
+npm run build
+```
+
+3. The static files will be in the `out` directory. Deploy this directory to your static host.
+
+**Important Notes:**
+- Images from the `public` directory are automatically included in all build types
+- Scryfall API calls require internet connectivity and may be subject to CORS policies
+- The app uses client-side state management, so state is not persisted between sessions
+
 ## Project Structure
 
 ```
@@ -171,3 +211,32 @@ This project is licensed under the MIT License.
 ## Support
 
 For issues, questions, or suggestions, please open an issue on GitHub.
+
+## Troubleshooting
+
+### Images Not Loading in Production
+If background images aren't loading after deployment:
+1. Verify the `public/images` directory exists in your deployment
+2. Check that you're not using `output: 'standalone'` in next.config.ts (this is for Docker only)
+3. Ensure static files are being served correctly by your hosting provider
+4. Check browser console for 404 errors on image requests
+
+### Commander Names Not Updating
+If commander names don't appear in the search input after selection:
+1. Clear your browser cache and reload
+2. Verify you're running the latest build (`npm run build && npm start`)
+3. Check browser console for any React hydration errors
+
+### Scryfall API Not Working
+If commander search returns no results:
+1. Check your internet connection
+2. Verify Scryfall API is accessible: https://api.scryfall.com/cards/autocomplete?q=test
+3. Check browser console for CORS errors
+4. Try disabling browser extensions that might block requests (ad blockers, privacy tools)
+
+### Build Failures
+If the build fails:
+1. Delete `.next` directory: `rm -rf .next`
+2. Delete `node_modules`: `rm -rf node_modules`
+3. Reinstall dependencies: `npm install`
+4. Try building again: `npm run build`
