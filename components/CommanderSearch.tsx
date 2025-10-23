@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { scryfallAPI } from '@/utils/scryfall';
 import { useGameState } from '@/hooks/useGameState';
 
@@ -16,6 +16,13 @@ export default function CommanderSearch({ playerId, isPartner = false }: Command
   const [loading, setLoading] = useState(false);
 
   const currentCommander = commanders[playerId]?.[isPartner ? 'partner' : 'main'];
+
+  // Sync query with current commander name
+  useEffect(() => {
+    if (currentCommander?.name) {
+      setQuery(currentCommander.name);
+    }
+  }, [currentCommander?.name]);
 
   const handleSearch = async (value: string) => {
     setQuery(value);
