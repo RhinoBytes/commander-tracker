@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: "standalone",
+  // Remove standalone output - it's designed for Docker and doesn't copy public files
+  // For standard deployments, use the default output or 'export' for static sites
   images: {
     remotePatterns: [
       {
@@ -13,6 +14,8 @@ const nextConfig: NextConfig = {
         hostname: "cards.scryfall.io",
       },
     ],
+    // For static export, images need to be unoptimized
+    unoptimized: true,
   },
 };
 
