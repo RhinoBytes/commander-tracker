@@ -77,6 +77,9 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 # Create production build
 npm run build
 
+# Verify the build (recommended before deployment)
+npm run verify
+
 # Start production server
 npm start
 ```
